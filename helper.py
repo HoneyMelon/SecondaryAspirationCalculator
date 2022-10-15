@@ -1,15 +1,11 @@
+import copy
 import numpy as np
+from PyQt5.QtGui import QImage
 
 
-def convert_qimage_to_mat(incomingImage):
-    """  Converts a QImage into an opencv MAT format  """
-
-    incomingImage = incomingImage.convertToFormat(4)
-
-    width = incomingImage.width()
-    height = incomingImage.height()
-
-    ptr = incomingImage.bits()
-    ptr.setsize(incomingImage.byteCount())
-    arr = np.array(ptr).reshape(height, width, 4)
+def qt_pixmap_to_array(pixmap):
+    channels_count = 4
+    image = pixmap.toImage()
+    s = image.bits().asstring(pixmap.width() * pixmap.height() * channels_count)
+    arr = np.frombuffer(s, dtype=np.uint8).reshape((pixmap.height(), pixmap.width(), channels_count))
     return arr

@@ -9,7 +9,7 @@ from slice import create_slices, interpret_match
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from MainWindow import Ui_MainWindow
-from helper import convert_qimage_to_mat
+from helper import qt_pixmap_to_array
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -24,6 +24,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if event.matches(QKeySequence.Paste):
             self.paste()
 
+    def display_result_values(self, result_values):
+        self.politics_edit.setText(str(result_values[0]))
+        self.crime_edit.setText(str(result_values[3]))
+        self.food_edit.setText(str(result_values[6]))
+        self.sports_edit.setText(str(result_values[9]))
+        self.work_edit.setText(str(result_values[12]))
+        self.school_edit.setText(str(result_values[15]))
+
+        self.money_edit.setText(str(result_values[1]))
+        self.entertainment_edit.setText(str(result_values[4]))
+        self.health_edit.setText(str(result_values[7]))
+        self.paranormal_edit.setText(str(result_values[10]))
+        self.weather_edit.setText(str(result_values[13]))
+        self.toys_edit.setText(str(result_values[16]))
+
+        self.environment_edit.setText(str(result_values[2]))
+        self.culture_edit.setText(str(result_values[5]))
+        self.fasion_edit.setText(str(result_values[8]))
+        self.travel_edit.setText(str(result_values[11]))
+        self.animals_edit.setText(str(result_values[14]))
+        self.scifi_edit.setText(str(result_values[17]))
+
     def paste(self):
         clipboard = QGuiApplication.clipboard()
         mimeData = clipboard.mimeData()
@@ -31,7 +53,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if mimeData.hasImage():
             self.target_image = mimeData.imageData()
             self.label.setPixmap(QPixmap(mimeData.imageData()).scaled(250, 180, Qt.KeepAspectRatio))
-            calculate_interest_values(self.target_image)
+            result_values = calculate_interest_values(self.target_image)
+            self.display_result_values(result_values)
         else:
             self.label.setText("Cannot display data")
 
@@ -60,9 +83,9 @@ def match_screenshot_to_interest_panel(screenshot):
 
 def calculate_interest_values(qimage):
     interests = imread('example.PNG')[:, :, :3]
-    # interests = convert_qimage_to_mat(qimage)
-    cut_image = match_screenshot_to_interest_panel(convert_qimage_to_mat(qimage))
-    templates_grey = imread('../SecAspCalc/data/templates.png')[:, :, :3]
+    print(qimage.height())
+    interests = qt_pixmap_to_array(QPixmap(qimage.rgbSwapped()))
+    templates_grey = imread('../SecAspCalc/data/templates.png')
     plt.figure(num=None, figsize=(8, 6), dpi=80)
     slices = create_slices(interests)
     result_values = []
@@ -73,7 +96,7 @@ def calculate_interest_values(qimage):
         y = ij[0]
         result_values.append(interpret_match(y))
 
-    slice = slices[10]
+    slice = slices[17]
 
     result = match_template(templates_grey, slice)
     ij = np.unravel_index(np.argmax(result), result.shape)
@@ -97,6 +120,7 @@ def calculate_interest_values(qimage):
     ax2.add_patch(rect)
 
     plt.show()
+    return result_values
 
 app = QApplication(sys.argv)
 window = MainWindow()
