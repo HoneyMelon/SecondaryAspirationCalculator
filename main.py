@@ -16,6 +16,8 @@ from aspCalculator import calculate_aspiration_values
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
+        self.setWindowTitle('Secondary Aspiration Calculator')
+        self.setWindowIcon(QIcon('../SecAspCalc/data/Popularity.png'))
         self.setupUi(self)
         self.target_image = None
         self.pushButton.clicked.connect(self.recalculate)
@@ -76,12 +78,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.label.setText("Cannot display data")
 
     def recalculate(self):
-        INTEREST_ORDER = ['Politics', 'Money', 'Environment',
-                          'Crime', 'Entertainment', 'Culture',
-                          'Food', 'Health', 'Fashion',
-                          'Sports', 'Paranormal', 'Travel',
-                          'Work', 'Weather', 'Animals',
-                          'School', 'Toys', 'Sci-Fi']
         politics = int(self.politics_edit.text())
         money = int(self.money_edit.text())
         environment = int(self.environment_edit.text())
@@ -127,7 +123,7 @@ def match_screenshot_to_interest_panel(screenshot):
 
 
 def calculate_interest_values(qimage):
-    interests = imread('example.PNG')[:, :, :3]
+    # interests = imread('example.PNG')[:, :, :3]
     interests = qt_pixmap_to_array(QPixmap(qimage.rgbSwapped()))
     templates_grey = imread('../SecAspCalc/data/templates.png')
     plt.figure(num=None, figsize=(8, 6), dpi=80)
@@ -140,34 +136,15 @@ def calculate_interest_values(qimage):
         y = ij[0]
         result_values.append(interpret_match(y))
 
-    slice = slices[17]
-
-    result = match_template(templates_grey, slice)
-    ij = np.unravel_index(np.argmax(result), result.shape)
-    x, y = ij[1], ij[0]
-    print(result_values)
-
-    fig = plt.figure(figsize=(8, 3))
-    ax1 = plt.subplot(1, 3, 1)
-    ax2 = plt.subplot(1, 3, 2)
-
-    ax1.imshow(slice)
-    ax1.set_axis_off()
-    ax1.set_title('template')
-
-    ax2.imshow(templates_grey)
-    ax2.set_axis_off()
-    ax2.set_title('image')
-    # highlight matched region
-    hcoin, wcoin = slice.shape[:2]
-    rect = plt.Rectangle((x, y), wcoin, hcoin, edgecolor='r', facecolor='none')
-    ax2.add_patch(rect)
-
-    plt.show()
     return result_values
 
 
-app = QApplication(sys.argv)
-window = MainWindow()
-window.show()
-app.exec()
+def main():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    app.exec()
+
+
+if __name__ == '__main__':
+    main()
